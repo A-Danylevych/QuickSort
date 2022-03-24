@@ -14,8 +14,8 @@ type Table struct {
 func NewTable(initGoroutines, endGoroutines int) *Table {
 	table := tablewriter.NewWriter(os.Stdout)
 
-	count := (endGoroutines - initGoroutines) / initGoroutines
-	header := make([]string, 0, 2+count)
+	count := endGoroutines - initGoroutines
+	header := make([]string, 2+count, 2+count)
 	header[0] = "Size"
 	header[1] = "Linear"
 	index := 2
@@ -31,19 +31,19 @@ func NewTable(initGoroutines, endGoroutines int) *Table {
 	}
 }
 
-func (t Table) AddIntElement(element int) {
+func (t *Table) AddIntElement(element int) {
 	t.row = append(t.row, strconv.Itoa(element))
 }
 
-func (t Table) AddDoubleElement(element float64) {
+func (t *Table) AddDoubleElement(element float64) {
 	t.AddIntElement(int(element))
 }
 
-func (t Table) AddRow() {
+func (t *Table) AddRow() {
 	t.table.Append(t.row)
 	t.row = make([]string, 0, cap(t.row))
 }
 
-func (t Table) Render() {
+func (t *Table) Render() {
 	t.table.Render()
 }

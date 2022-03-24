@@ -1,7 +1,9 @@
 package quickSort
 
 func LinearSort(array []int) []int {
-	return linearSort(array, 0, len(array)-1)
+	var arrayCopy = make([]int, len(array))
+	copy(arrayCopy, array)
+	return linearSort(arrayCopy, 0, len(arrayCopy)-1)
 }
 
 func linearSort(array []int, lowIndex, highIndex int) []int {

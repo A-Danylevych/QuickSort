@@ -37,7 +37,7 @@ func NewTester(initialSize, endSize, initialGoroutines, endGoroutines, dataCount
 	}
 }
 
-func (t Tester) GenerateRandomData(elementRange int) {
+func (t *Tester) GenerateRandomData(elementRange int) {
 	currentSize := t.initialSize
 	for index := range t.testData {
 		t.testData[index] = generator.GenerateRandomArray(currentSize, elementRange)
@@ -47,7 +47,7 @@ func (t Tester) GenerateRandomData(elementRange int) {
 	}
 }
 
-func (t Tester) GeneratePermData() {
+func (t *Tester) GeneratePermData() {
 	currentSize := t.initialSize
 	for index := range t.testData {
 		t.testData[index] = generator.GeneratePermArray(currentSize)
@@ -57,25 +57,25 @@ func (t Tester) GeneratePermData() {
 	}
 }
 
-func (t Tester) SetData(data []int) {
+func (t *Tester) SetData(data []int) {
 	t.testData = append(t.testData, data)
 }
 
-func (t Tester) TestLinear() {
+func (t *Tester) TestLinear() {
 
 	t.linearResults = *newResults(t.sizeCount, t.dataCount)
 
 	for _, value := range t.testData {
 		start := time.Now()
 		sorted := quickSort.LinearSort(value)
-		elapsed := time.Since(start)
+		elapsed := time.Since(start).Nanoseconds()
 		t.linearResults.addResult(value, sorted, int(elapsed), 0)
 	}
 }
 
-func (t Tester) DisplayStats() {
+func (t *Tester) DisplayStats() {
 	table := output.NewTable(t.initialGoroutines, t.endGoroutines)
-	for i := t.initialSize; i < t.endSize; i += t.initialSize {
+	for i := t.initialSize; i <= t.endSize; i += t.initialSize {
 		table.AddIntElement(i)
 		table.AddDoubleElement(t.linearResults.getTime(i, 0))
 		for j := t.initialGoroutines; j < t.endGoroutines; j++ {
@@ -86,10 +86,10 @@ func (t Tester) DisplayStats() {
 	table.Render()
 }
 
-func (t Tester) Display() {
-	for i := t.initialSize; i < t.endSize; i += t.initialSize {
+func (t *Tester) Display() {
+	for i := t.initialSize; i <= t.endSize; i += t.initialSize {
 		display(t.linearResults.getResult(i))
-		//display(t.goroutinesResults.getResult(i))
+		display(t.goroutinesResults.getResult(i))
 	}
 }
 
@@ -98,6 +98,6 @@ func display(result result) {
 		fmt.Printf("Size - %d, Goroutines - %d\n", result.Size, result.GoroutinesCount[index])
 		fmt.Printf("Initial array: %v\n", result.InitArray)
 		fmt.Printf("Sorted array: %v\n", result.SortedArray)
-		fmt.Printf("Time elepsed= %d", value)
+		fmt.Printf("Time elepsed= %d\n", value)
 	}
 }

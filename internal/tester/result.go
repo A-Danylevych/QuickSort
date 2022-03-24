@@ -26,14 +26,14 @@ func newResult(initArray, sortedArray []int, time, goroutinesCount, size, result
 	}
 }
 
-func (r result) addResult(initArray, sortedArray []int, time, goroutinesCount int) {
+func (r *result) addResult(initArray, sortedArray []int, time, goroutinesCount int) {
 	r.InitArray = append(r.InitArray, initArray)
 	r.SortedArray = append(r.SortedArray, sortedArray)
 	r.time = append(r.time, time)
 	r.GoroutinesCount = append(r.GoroutinesCount, goroutinesCount)
 }
 
-func (r result) getTime(goroutinesCount int) float64 {
+func (r *result) getTime(goroutinesCount int) float64 {
 	var time float64
 	count := 0
 	for index, value := range r.time {
