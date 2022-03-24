@@ -41,7 +41,7 @@ func (t Table) AddDoubleElement(element float64) {
 
 func (t Table) AddRow() {
 	t.table.Append(t.row)
-	t.row = make([]string, 0, len(t.row))
+	t.row = make([]string, 0, cap(t.row))
 }
 
 func (t Table) Render() {
