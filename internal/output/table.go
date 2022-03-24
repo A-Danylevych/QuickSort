@@ -11,24 +11,33 @@ type Table struct {
 	row   []string
 }
 
+const requiredCols = 2
+
 func NewTable(initGoroutines, endGoroutines int) *Table {
 	table := tablewriter.NewWriter(os.Stdout)
 
-	count := endGoroutines - initGoroutines
-	header := make([]string, 2+count, 2+count)
-	header[0] = "Size"
-	header[1] = "Linear"
-	index := 2
+	header := makeHeader(initGoroutines, endGoroutines)
 
-	for i := initGoroutines; i < endGoroutines; i++ {
-		header[index] = "Goroutines - " + strconv.Itoa(i)
-	}
 	table.SetHeader(header)
 
 	return &Table{
 		table: *table,
-		row:   make([]string, 0, index),
+		row:   make([]string, 0, requiredCols+endGoroutines-initGoroutines),
 	}
+}
+
+func makeHeader(initGoroutines, endGoroutines int) []string {
+	count := requiredCols + endGoroutines - initGoroutines
+	header := make([]string, count, count)
+	header[0] = "Size"
+	header[1] = "Linear"
+	index := requiredCols
+
+	for i := initGoroutines; i < endGoroutines; i++ {
+		header[index] = "Goroutines - " + strconv.Itoa(i)
+		index++
+	}
+	return header
 }
 
 func (t *Table) AddIntElement(element int) {

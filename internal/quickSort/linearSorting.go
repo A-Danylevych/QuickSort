@@ -18,13 +18,13 @@ func linearSort(array []int, lowIndex, highIndex int) []int {
 
 func partition(array []int, lowIndex, highIndex int) ([]int, int) {
 	pivot := array[highIndex]
-	i := lowIndex
+	PivotIndex := lowIndex
 	for j := lowIndex; j < highIndex; j++ {
 		if array[j] < pivot {
-			array[i], array[j] = array[j], array[i]
-			i++
+			array[PivotIndex], array[j] = array[j], array[PivotIndex]
+			PivotIndex++
 		}
 	}
-	array[i], array[highIndex] = array[highIndex], array[i]
-	return array, i
+	array[PivotIndex], array[highIndex] = array[highIndex], array[PivotIndex]
+	return array, PivotIndex
 }
