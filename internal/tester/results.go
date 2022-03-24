@@ -13,11 +13,11 @@ func newResults(sizeCount, dataCount int) *results {
 	}
 }
 
-func (r *results) addResult(initArray, sortedArray []int, time, goroutinesCount int) {
+func (r *results) addResult(initArray, sortedArray []int, time int64, goroutinesCount int) {
 	size := len(initArray)
-	for _, value := range r.results {
+	for index, value := range r.results {
 		if value.Size == size {
-			value.addResult(initArray, sortedArray, time, goroutinesCount)
+			r.results[index].addResult(initArray, sortedArray, time, goroutinesCount)
 			return
 		}
 	}

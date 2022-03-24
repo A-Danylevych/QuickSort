@@ -1,5 +1,9 @@
 package main
 
-func main() {
+import (
+	"QuickSort/internal/console"
+)
 
+func main() {
+	console.Run()
 }

@@ -22,7 +22,7 @@ type Tester struct {
 
 func NewTester(initialSize, endSize, initialGoroutines, endGoroutines, dataCount int) *Tester {
 
-	sizeCount := (endSize - initialSize) / initialSize
+	sizeCount := (endSize-initialSize)/initialSize + 1
 	iterations := dataCount * sizeCount
 	testData := make([][]int, 0, iterations)
 
@@ -39,8 +39,8 @@ func NewTester(initialSize, endSize, initialGoroutines, endGoroutines, dataCount
 
 func (t *Tester) GenerateRandomData(elementRange int) {
 	currentSize := t.initialSize
-	for index := range t.testData {
-		t.testData[index] = generator.GenerateRandomArray(currentSize, elementRange)
+	for index := 0; index < cap(t.testData); index++ {
+		t.testData = append(t.testData, generator.GenerateRandomArray(currentSize, elementRange))
 		if (index+1)%t.dataCount == 0 {
 			currentSize += t.initialSize
 		}
@@ -49,7 +49,7 @@ func (t *Tester) GenerateRandomData(elementRange int) {
 
 func (t *Tester) GeneratePermData() {
 	currentSize := t.initialSize
-	for index := range t.testData {
+	for index := 0; index < cap(t.testData); index++ {
 		t.testData[index] = generator.GeneratePermArray(currentSize)
 		if (index+1)%t.dataCount == 0 {
 			currentSize += t.initialSize
@@ -68,8 +68,8 @@ func (t *Tester) TestLinear() {
 	for _, value := range t.testData {
 		start := time.Now()
 		sorted := quickSort.LinearSort(value)
-		elapsed := time.Since(start).Nanoseconds()
-		t.linearResults.addResult(value, sorted, int(elapsed), 0)
+		elapsed := time.Since(start).Microseconds()
+		t.linearResults.addResult(value, sorted, elapsed, 0)
 	}
 }
 
