@@ -26,7 +26,7 @@ func initializeCLI() *cli.App {
 	app.Flags = []cli.Flag{
 		&cli.BoolFlag{
 			Name:  "view,v",
-			Usage: "show arrays",
+			Usage: "show arrays inputs and results",
 			Value: false,
 		},
 		&cli.IntFlag{
@@ -46,17 +46,17 @@ func initializeCLI() *cli.App {
 		},
 		&cli.IntFlag{
 			Name:  "go",
-			Usage: "start goroutines count",
+			Usage: "set test start goroutines count",
 			Value: 0,
 		},
 		&cli.IntFlag{
 			Name:  "maxGo,mgo",
-			Usage: "end goroutines count",
+			Usage: "set test end goroutines count",
 			Value: 0,
 		},
 		&cli.IntFlag{
 			Name:  "dataCount,c",
-			Usage: "count of testing data",
+			Usage: "set count of testing data to each size",
 			Value: 1,
 		},
 	}
@@ -75,6 +75,7 @@ func initializeCLI() *cli.App {
 		{
 			Name:    "input",
 			Aliases: []string{"i"},
+			Usage:   "Input array manually",
 			Action: func(c *cli.Context) error {
 				array, err := enterArray()
 				if err != nil {
@@ -87,6 +88,7 @@ func initializeCLI() *cli.App {
 		{
 			Name:    "perm",
 			Aliases: []string{"p"},
+			Usage:   "Use unique elements in arrays",
 			Action: func(c *cli.Context) error {
 				permArraySort(c.Int("size"), c.Int("maxSize"), c.Int("go"),
 					c.Int("maxGo"), c.Int("dataCount"), c.Bool("view"))
