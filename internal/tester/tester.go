@@ -50,7 +50,7 @@ func (t *Tester) GenerateRandomData(elementRange int) {
 func (t *Tester) GeneratePermData() {
 	currentSize := t.initialSize
 	for index := 0; index < cap(t.testData); index++ {
-		t.testData[index] = generator.GeneratePermArray(currentSize)
+		t.testData = append(t.testData, generator.GeneratePermArray(currentSize))
 		if (index+1)%t.dataCount == 0 {
 			currentSize += t.initialSize
 		}
