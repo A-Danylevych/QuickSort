@@ -30,7 +30,7 @@ func makeHeader(initGoroutines, endGoroutines int) []string {
 	count := requiredCols + endGoroutines - initGoroutines
 	header := make([]string, count, count)
 	header[0] = "Size"
-	header[1] = "Linear"
+	header[1] = "Sequential\n (time in microseconds)"
 	index := requiredCols
 
 	for i := initGoroutines; i < endGoroutines; i++ {

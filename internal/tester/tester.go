@@ -15,7 +15,7 @@ type Tester struct {
 	initialGoroutines int
 	endGoroutines     int
 	dataCount         int
-	linearResults     results
+	sequentialResults results
 	goroutinesResults results
 	sizeCount         int
 }
@@ -63,13 +63,13 @@ func (t *Tester) SetData(data []int) {
 
 func (t *Tester) TestLinear() {
 
-	t.linearResults = *newResults(t.sizeCount, t.dataCount)
+	t.sequentialResults = *newResults(t.sizeCount, t.dataCount)
 
 	for _, value := range t.testData {
 		start := time.Now()
-		sorted := quickSort.LinearSort(value)
+		sorted := quickSort.SequentialSort(value)
 		elapsed := time.Since(start).Microseconds()
-		t.linearResults.addResult(value, sorted, elapsed, 0)
+		t.sequentialResults.addResult(value, sorted, elapsed, 0)
 	}
 }
 
@@ -77,7 +77,7 @@ func (t *Tester) DisplayStats() {
 	table := output.NewTable(t.initialGoroutines, t.endGoroutines)
 	for i := t.initialSize; i <= t.endSize; i += t.initialSize {
 		table.AddIntElement(i)
-		table.AddDoubleElement(t.linearResults.getTime(i, 0))
+		table.AddDoubleElement(t.sequentialResults.getTime(i, 0))
 		for j := t.initialGoroutines; j < t.endGoroutines; j++ {
 			table.AddDoubleElement(t.goroutinesResults.getTime(i, j))
 		}
@@ -88,7 +88,7 @@ func (t *Tester) DisplayStats() {
 
 func (t *Tester) Display() {
 	for i := t.initialSize; i <= t.endSize; i += t.initialSize {
-		display(t.linearResults.getResult(i))
+		display(t.sequentialResults.getResult(i))
 		display(t.goroutinesResults.getResult(i))
 	}
 }
