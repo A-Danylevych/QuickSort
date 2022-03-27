@@ -1,6 +1,7 @@
 package output
 
 import (
+	"fmt"
 	"github.com/olekukonko/tablewriter"
 	"os"
 	"strconv"
@@ -13,10 +14,10 @@ type Table struct {
 
 const requiredCols = 2
 
-func NewTable(initGoroutines, endGoroutines int) *Table {
+func NewTable(initGoroutines, endGoroutines, step int) *Table {
 	table := tablewriter.NewWriter(os.Stdout)
 
-	header := makeHeader(initGoroutines, endGoroutines)
+	header := makeHeader(initGoroutines, endGoroutines, step)
 
 	table.SetHeader(header)
 
@@ -26,16 +27,17 @@ func NewTable(initGoroutines, endGoroutines int) *Table {
 	}
 }
 
-func makeHeader(initGoroutines, endGoroutines int) []string {
-	count := requiredCols + endGoroutines - initGoroutines
-	header := make([]string, count, count)
-	header[0] = "Size"
-	header[1] = "Sequential\n (time in microseconds)"
-	index := requiredCols
+func makeHeader(initGoroutines, endGoroutines, step int) []string {
+	count := requiredCols + ((endGoroutines-initGoroutines)/step+1)*4
+	header := make([]string, 0, count)
+	header = append(header, "Size")
+	header = append(header, "Sequential\n (time in microseconds)")
 
-	for i := initGoroutines; i < endGoroutines; i++ {
-		header[index] = "Goroutines - " + strconv.Itoa(i)
-		index++
+	for i := initGoroutines; i <= endGoroutines; i += step {
+		header = append(header, "Concurrent - "+strconv.Itoa(i))
+		header = append(header, "SpeedUp - "+strconv.Itoa(i))
+		header = append(header, "Parallel - "+strconv.Itoa(i))
+		header = append(header, "SpeedUp - "+strconv.Itoa(i))
 	}
 	return header
 }
@@ -45,7 +47,7 @@ func (t *Table) AddIntElement(element int) {
 }
 
 func (t *Table) AddDoubleElement(element float64) {
-	t.AddIntElement(int(element))
+	t.row = append(t.row, fmt.Sprintf("%.2f", element))
 }
 
 func (t *Table) AddRow() {

@@ -5,6 +5,7 @@ import (
 	"QuickSort/internal/output"
 	"QuickSort/internal/quickSort"
 	"fmt"
+	"runtime"
 	"time"
 )
 
@@ -16,11 +17,13 @@ type Tester struct {
 	endGoroutines     int
 	dataCount         int
 	sequentialResults results
-	goroutinesResults results
+	concurrentResult  results
+	parallelResult    results
 	sizeCount         int
+	goStep            int
 }
 
-func NewTester(initialSize, endSize, initialGoroutines, endGoroutines, dataCount int) *Tester {
+func NewTester(initialSize, endSize, initialGoroutines, endGoroutines, dataCount, goStep int) *Tester {
 
 	sizeCount := (endSize-initialSize)/initialSize + 1
 	iterations := dataCount * sizeCount
@@ -34,6 +37,7 @@ func NewTester(initialSize, endSize, initialGoroutines, endGoroutines, dataCount
 		endGoroutines:     endGoroutines,
 		dataCount:         dataCount,
 		sizeCount:         sizeCount,
+		goStep:            goStep,
 	}
 }
 
@@ -61,7 +65,7 @@ func (t *Tester) SetData(data []int) {
 	t.testData = append(t.testData, data)
 }
 
-func (t *Tester) TestLinear() {
+func (t *Tester) TestSequential() {
 
 	t.sequentialResults = *newResults(t.sizeCount, t.dataCount)
 
@@ -73,13 +77,48 @@ func (t *Tester) TestLinear() {
 	}
 }
 
+func (t *Tester) TestConcurrent() {
+	t.concurrentResult = *newResults(t.sizeCount, t.dataCount)
+
+	for _, value := range t.testData {
+		for count := t.initialGoroutines; count <= t.endGoroutines; count += t.goStep {
+			start := time.Now()
+			sorted := quickSort.GoroutineSorting(value, count)
+			elapsed := time.Since(start).Microseconds()
+			t.concurrentResult.addResult(value, sorted, elapsed, count)
+		}
+
+	}
+}
+
+func (t *Tester) TestParallel() {
+	t.parallelResult = *newResults(t.sizeCount, t.dataCount)
+
+	for _, value := range t.testData {
+		for count := t.initialGoroutines; count <= t.endGoroutines; count += t.goStep {
+			runtime.GOMAXPROCS(count)
+			start := time.Now()
+			sorted := quickSort.GoroutineSorting(value, count)
+			elapsed := time.Since(start).Microseconds()
+			t.parallelResult.addResult(value, sorted, elapsed, count)
+		}
+
+	}
+}
+
 func (t *Tester) DisplayStats() {
-	table := output.NewTable(t.initialGoroutines, t.endGoroutines)
+	table := output.NewTable(t.initialGoroutines, t.endGoroutines, t.goStep)
 	for i := t.initialSize; i <= t.endSize; i += t.initialSize {
 		table.AddIntElement(i)
-		table.AddDoubleElement(t.sequentialResults.getTime(i, 0))
-		for j := t.initialGoroutines; j < t.endGoroutines; j++ {
-			table.AddDoubleElement(t.goroutinesResults.getTime(i, j))
+		sequentialTime := t.sequentialResults.getTime(i, 0)
+		table.AddDoubleElement(sequentialTime)
+		for j := t.initialGoroutines; j <= t.endGoroutines; j += t.goStep {
+			goroutineTime := t.concurrentResult.getTime(i, j)
+			table.AddDoubleElement(goroutineTime)
+			table.AddDoubleElement(sequentialTime / goroutineTime)
+			goroutineTime = t.parallelResult.getTime(i, j)
+			table.AddDoubleElement(goroutineTime)
+			table.AddDoubleElement(sequentialTime / goroutineTime)
 		}
 		table.AddRow()
 	}
@@ -88,8 +127,12 @@ func (t *Tester) DisplayStats() {
 
 func (t *Tester) Display() {
 	for i := t.initialSize; i <= t.endSize; i += t.initialSize {
+		fmt.Printf("Sequential\n")
 		display(t.sequentialResults.getResult(i))
-		display(t.goroutinesResults.getResult(i))
+		fmt.Printf("Concurrent\n")
+		display(t.concurrentResult.getResult(i))
+		fmt.Printf("Paralel\n")
+		display(t.parallelResult.getResult(i))
 	}
 }
 

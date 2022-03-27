@@ -21,7 +21,7 @@ func initializeCLI() *cli.App {
 
 	app.Name = "QuickSort"
 	app.Usage = "To sort arrays"
-	app.Version = "1.0.0"
+	app.Version = "2.0.0"
 
 	app.Flags = []cli.Flag{
 		&cli.BoolFlag{
@@ -47,12 +47,17 @@ func initializeCLI() *cli.App {
 		&cli.IntFlag{
 			Name:  "go",
 			Usage: "set test start goroutines count",
-			Value: 0,
+			Value: 1,
 		},
 		&cli.IntFlag{
 			Name:  "maxGo,mgo",
 			Usage: "set test end goroutines count",
-			Value: 0,
+			Value: 1,
+		},
+		&cli.IntFlag{
+			Name:  "goStep,gos",
+			Usage: "set test end goroutines count",
+			Value: 1,
 		},
 		&cli.IntFlag{
 			Name:  "dataCount,c",
@@ -68,7 +73,8 @@ func initializeCLI() *cli.App {
 			Usage:   "Use random arrays",
 			Action: func(c *cli.Context) error {
 				randArraySort(c.Int("size"), c.Int("maxSize"), c.Int("go"),
-					c.Int("maxGo"), c.Int("dataCount"), c.Int("elementRange"), c.Bool("view"))
+					c.Int("maxGo"), c.Int("dataCount"), c.Int("elementRange"), c.Int("goStep"),
+					c.Bool("view"))
 				return nil
 			},
 		},
@@ -81,7 +87,7 @@ func initializeCLI() *cli.App {
 				if err != nil {
 					return err
 				}
-				inputArray(array, c.Int("go"), c.Int("mgo"))
+				inputArray(array, c.Int("go"), c.Int("mgo"), c.Int("goStep"))
 				return nil
 			},
 		},
@@ -91,7 +97,7 @@ func initializeCLI() *cli.App {
 			Usage:   "Use unique elements in arrays",
 			Action: func(c *cli.Context) error {
 				permArraySort(c.Int("size"), c.Int("maxSize"), c.Int("go"),
-					c.Int("maxGo"), c.Int("dataCount"), c.Bool("view"))
+					c.Int("maxGo"), c.Int("dataCount"), c.Int("goStep"), c.Bool("view"))
 				return nil
 			},
 		},
@@ -104,31 +110,37 @@ func initializeCLI() *cli.App {
 
 	return app
 }
-func randArraySort(size, maxSize, goroutineStart, goroutineEnd, dataCount, elementRange int, show bool) {
-	sorting := *tester.NewTester(size, maxSize, goroutineStart, goroutineEnd, dataCount)
+func randArraySort(size, maxSize, goroutineStart, goroutineEnd, dataCount, elementRange, goStep int, show bool) {
+	sorting := *tester.NewTester(size, maxSize, goroutineStart, goroutineEnd, dataCount, goStep)
 	sorting.GenerateRandomData(elementRange)
-	sorting.TestLinear()
+	sorting.TestSequential()
+	sorting.TestConcurrent()
+	sorting.TestParallel()
 	sorting.DisplayStats()
 	if show {
 		sorting.Display()
 	}
 }
 
-func permArraySort(size, maxSize, goroutineStart, goroutineEnd, dataCount int, show bool) {
-	sorting := *tester.NewTester(size, maxSize, goroutineStart, goroutineEnd, dataCount)
+func permArraySort(size, maxSize, goroutineStart, goroutineEnd, dataCount, goStep int, show bool) {
+	sorting := *tester.NewTester(size, maxSize, goroutineStart, goroutineEnd, dataCount, goStep)
 	sorting.GeneratePermData()
-	sorting.TestLinear()
+	sorting.TestSequential()
+	sorting.TestConcurrent()
+	sorting.TestParallel()
 	sorting.DisplayStats()
 	if show {
 		sorting.Display()
 	}
 }
 
-func inputArray(array []int, startGoroutines, endGoroutines int) {
+func inputArray(array []int, startGoroutines, endGoroutines, goStep int) {
 	size := len(array)
-	sorting := *tester.NewTester(size, size, startGoroutines, endGoroutines, 1)
+	sorting := *tester.NewTester(size, size, startGoroutines, endGoroutines, 1, goStep)
 	sorting.SetData(array)
-	sorting.TestLinear()
+	sorting.TestSequential()
+	sorting.TestConcurrent()
+	sorting.TestParallel()
 	sorting.Display()
 	sorting.DisplayStats()
 }
