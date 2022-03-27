@@ -16,7 +16,7 @@ func goroutineSorting(array []int, goroutinesCount int) []int {
 	communicationChanMap := make(map[int]chan []int)
 	resultChanMap := make(map[int]chan []int)
 	for index := 0; index < goroutinesCount; index++ {
-		communicationChanMap[index] = make(chan []int, goroutinesCount)
+		communicationChanMap[index] = make(chan []int, goroutinesCount-1)
 		resultChanMap[index] = make(chan []int)
 	}
 
@@ -73,12 +73,14 @@ func calculateLocalPivots(array []int, goroutinesCount, size int) []int {
 	}
 	return localPivots
 }
+
 func getLocalPivots(pivots []int, goroutinesCount int, communicationChanMap map[int]chan []int) []int {
 	for index := 1; index < goroutinesCount; index++ {
 		pivots = append(pivots, <-communicationChanMap[pivotIndex]...)
 	}
 	return pivots
 }
+
 func sendLocalPivots(array []int, communicationChanMap map[int]chan []int) {
 	communicationChanMap[pivotIndex] <- array
 }
@@ -97,6 +99,7 @@ func sendGlobalPivots(pivots []int, communicationChanMap map[int]chan []int, gor
 
 	return globalPivots
 }
+
 func getGlobalPivots(id int, communicationChanMap map[int]chan []int) []int {
 	array := <-communicationChanMap[id]
 	return array
@@ -142,6 +145,7 @@ func getParts(size, id, goroutinesCount int, communicationChanMap map[int]chan [
 	}
 	return array
 }
+
 func divideArray(array []int, goroutinesCount int) [][]int {
 	arraySize := len(array)
 	endIndexes := make([]int, goroutinesCount)
