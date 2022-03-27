@@ -81,6 +81,7 @@ func (t *Tester) TestSequential() {
 
 func (t *Tester) TestConcurrent() {
 	t.concurrentResult = *newResults(t.sizeCount, t.dataCount)
+	runtime.GOMAXPROCS(1)
 
 	for _, value := range t.testData {
 		for count := t.initialGoroutines; count <= t.endGoroutines; count += t.goStep {
@@ -95,10 +96,10 @@ func (t *Tester) TestConcurrent() {
 
 func (t *Tester) TestParallel() {
 	t.parallelResult = *newResults(t.sizeCount, t.dataCount)
+	runtime.GOMAXPROCS(runtime.NumCPU())
 
 	for _, value := range t.testData {
 		for count := t.initialGoroutines; count <= t.endGoroutines; count += t.goStep {
-			runtime.GOMAXPROCS(count)
 			start := time.Now()
 			sorted := quickSort.GoroutineSorting(value, count)
 			elapsed := time.Since(start).Microseconds()
