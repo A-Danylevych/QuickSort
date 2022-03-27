@@ -152,12 +152,15 @@ func divideArray(array []int, goroutinesCount int) [][]int {
 	elementsPerArray := arraySize / goroutinesCount
 	extraElements := arraySize % goroutinesCount
 
+	elementsCount := elementsPerArray
+
 	for i := 0; i < goroutinesCount; i++ {
-		endIndexes[i] = (i + 1) * elementsPerArray
 		if extraElements != 0 {
-			endIndexes[i]++
+			elementsCount++
 			extraElements--
 		}
+		endIndexes[i] = elementsCount
+		elementsCount += elementsPerArray
 	}
 
 	dividedArray := make([][]int, 0, goroutinesCount)
