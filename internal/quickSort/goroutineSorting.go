@@ -104,33 +104,22 @@ func getGlobalPivots(id int, communicationChanMap map[int]chan []int) []int {
 
 func divideArrayByPivots(array, pivots []int, goroutinesCount int) [][]int {
 	dividedArray := make([][]int, goroutinesCount)
-	startIndex := 0
-	endIndex := 0
-	partIndex := 0
 	for _, value := range array {
-		if partIndex == goroutinesCount-1 || value > pivots[partIndex] {
-			subArray := make([]int, endIndex-startIndex)
-			copy(subArray, array[startIndex:endIndex])
-			dividedArray[partIndex] = subArray
-			startIndex = endIndex
-			partIndex++
-		}
-		endIndex++
-		if partIndex == goroutinesCount-1 {
-			endIndex = len(array)
-		}
-		if partIndex == goroutinesCount {
-			break
-		}
-		if endIndex == len(array) {
-			if dividedArray[partIndex] == nil {
-				subArray := make([]int, endIndex-startIndex)
-				copy(subArray, array[startIndex:endIndex])
-				dividedArray[partIndex] = subArray
-			}
-		}
+		dividedArray = aadValueToArray(dividedArray, pivots, value)
 	}
 	return dividedArray
+}
+
+func aadValueToArray(array [][]int, pivots []int, element int) [][]int {
+	index := 0
+	for _, value := range pivots {
+		if element > value {
+			index++
+		}
+	}
+	array[index] = append(array[index], element)
+
+	return array
 }
 
 func sendParts(array [][]int, id, goroutinesCount int, communicationChanMap map[int]chan []int) []int {
