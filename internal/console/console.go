@@ -87,7 +87,7 @@ func initializeCLI() *cli.App {
 				if err != nil {
 					return err
 				}
-				inputArray(array, c.Int("go"), c.Int("mgo"), c.Int("goStep"))
+				inputArray(array, c.Int("go"), c.Int("maxGo"), c.Int("goStep"))
 				return nil
 			},
 		},
