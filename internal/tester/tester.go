@@ -63,6 +63,8 @@ func (t *Tester) GeneratePermData() {
 
 func (t *Tester) SetData(data []int) {
 	t.testData = append(t.testData, data)
+	t.initialSize = len(data)
+	t.endSize = len(data)
 }
 
 func (t *Tester) TestSequential() {
@@ -139,8 +141,8 @@ func (t *Tester) Display() {
 func display(result result) {
 	for index, value := range result.time {
 		fmt.Printf("Size - %d, Goroutines - %d\n", result.Size, result.GoroutinesCount[index])
-		fmt.Printf("Initial array: %v\n", result.InitArray)
-		fmt.Printf("Sorted array: %v\n", result.SortedArray)
+		fmt.Printf("Initial array: %v\n", result.InitArray[index])
+		fmt.Printf("Sorted array: %v\n", result.SortedArray[index])
 		fmt.Printf("Time elepsed= %d\n", value)
 	}
 }
