@@ -3,12 +3,6 @@ package quickSort
 const pivotIndex = 0
 
 func GoroutineSorting(array []int, goroutinesCount int) []int {
-	arrayCopy := make([]int, 0, len(array))
-	copy(arrayCopy, array)
-	return goroutineSorting(array, goroutinesCount)
-}
-
-func goroutineSorting(array []int, goroutinesCount int) []int {
 	dividedArray := divideArray(array, goroutinesCount)
 	size := len(array)
 	sortedArray := make([]int, 0, size)
@@ -40,11 +34,13 @@ func receiver(array []int, goroutinesCount, arraySize, id int, communicationChan
 
 	localPivots := calculateLocalPivots(array, goroutinesCount, arraySize)
 	sendLocalPivots(localPivots, communicationChanMap)
+
 	pivots := getGlobalPivots(id, communicationChanMap)
 	dividedArray := divideArrayByPivots(array, pivots, goroutinesCount)
 	remain := sendParts(dividedArray, id, goroutinesCount, communicationChanMap)
-	remain = append(remain, getParts(arraySize, id, goroutinesCount, communicationChanMap)...)
+	remain = getParts(remain, arraySize, id, goroutinesCount, communicationChanMap)
 	sorted := SequentialSort(remain)
+
 	resultChanMap[id] <- sorted
 }
 
@@ -60,7 +56,7 @@ func transmitter(array []int, goroutinesCount, arraySize, id int, communicationC
 	pivots := sendGlobalPivots(localPivots, communicationChanMap, goroutinesCount)
 	dividedArray := divideArrayByPivots(array, pivots, goroutinesCount)
 	remain := sendParts(dividedArray, id, goroutinesCount, communicationChanMap)
-	remain = append(remain, getParts(arraySize, id, goroutinesCount, communicationChanMap)...)
+	remain = getParts(remain, arraySize, id, goroutinesCount, communicationChanMap)
 	remain = SequentialSort(remain)
 	resultChanMap[id] <- remain
 }
@@ -107,6 +103,7 @@ func getGlobalPivots(id int, communicationChanMap map[int]chan []int) []int {
 
 func divideArrayByPivots(array, pivots []int, goroutinesCount int) [][]int {
 	dividedArray := make([][]int, goroutinesCount)
+
 	for _, value := range array {
 		dividedArray = aadValueToArray(dividedArray, pivots, value)
 	}
@@ -135,10 +132,11 @@ func sendParts(array [][]int, id, goroutinesCount int, communicationChanMap map[
 	return array[id]
 }
 
-func getParts(size, id, goroutinesCount int, communicationChanMap map[int]chan []int) []int {
+func getParts(remains []int, size, id, goroutinesCount int, communicationChanMap map[int]chan []int) []int {
 	array := make([]int, 0, size/goroutinesCount)
 	for index := 0; index < goroutinesCount; index++ {
 		if index == id {
+			array = append(array, remains...)
 			continue
 		}
 		array = append(array, <-communicationChanMap[id]...)
